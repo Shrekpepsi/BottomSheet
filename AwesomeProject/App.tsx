@@ -6,23 +6,33 @@ import LinearGradient from 'react-native-linear-gradient';
 import Carousel from 'react-native-reanimated-carousel';
 
 const App = () => {
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-    
-    const bottomSheetRef = useRef<BottomSheet>(null);
-    interface CarouselItem {
-      id: string;
-      text: string;
-    }
-    const width = Dimensions.get('window').width;
 
+    // Hooks
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const bottomSheetRef = useRef<BottomSheet>(null);
+ 
+    
     // variables
   const snapPoints = useMemo(() => ['50%','50%'], []);
 
+   interface CarouselItem {
+    id: string;
+    text: string;
+   }
 
-// callbacks
-const handleSheetChanges = useCallback((index: number) => {
-  console.log('handleSheetChanges', index);
-}, []);
+   const width = Dimensions.get('window').width;
+
+   const carouselData = useMemo(() => [
+    { id: 'item1', text: 'First View Content' },
+    { id: 'item2', text: 'Second View Content' }
+     ], []);
+
+
+    // callbacks
+     const handleSheetChanges = useCallback((index: number) => {
+     console.log('handleSheetChanges', index);
+    }, []);
+
 
     const renderCarouselItem = useCallback(({item} : { item: CarouselItem }) => (
         <ScrollView style={{ flex: 1 }}>
@@ -30,44 +40,43 @@ const handleSheetChanges = useCallback((index: number) => {
         </ScrollView>
     ), []);
 
-    const carouselData = useMemo(() => [
-        { id: 'item1', text: 'First View Content' },
-        { id: 'item2', text: 'Second View Content' }
-    ], []);
+    const renderContent = useCallback(() => (
+      <View style={{ flex: 1 }}>
+          <Carousel
+              data={carouselData}
+              renderItem={renderCarouselItem}
+              width={width}
+              height={500} // Adjust as needed
+              loop={false}
+              onProgressChange={handleProgressChange}
 
+          />
+      </View>
+  ), [carouselData]);
+
+
+  
+
+    //Function to Get Gestures Values
     const handleProgressChange = (offsetProgress: any, absoluteProgress:any) => {
       console.log("Offset Progress:", offsetProgress);
       console.log("Absolute Progress:", absoluteProgress);
       // You can use these values as needed
   };
+
+    // Function to open/close Bottom Sheet
+      const toggleBottomSheet = () => {
+        setIsBottomSheetOpen(!isBottomSheetOpen);
+        if (isBottomSheetOpen) {
+          bottomSheetRef.current?.close();  // Close the Bottom Sheet
+        } else {
+          bottomSheetRef.current?.expand(); // Open the Bottom Sheet
+        }
+      };
     
 
-    const renderContent = useCallback(() => (
-        <View style={{ flex: 1 }}>
-            <Carousel
-                data={carouselData}
-                renderItem={renderCarouselItem}
-                width={width}
-                height={500} // Adjust as needed
-                loop={false}
-                onProgressChange={handleProgressChange}
 
-            />
-        </View>
-    ), [carouselData]);
-
-
-
-     // Function to toggle Bottom Sheet
-  const toggleBottomSheet = () => {
-    setIsBottomSheetOpen(!isBottomSheetOpen);
-    if (isBottomSheetOpen) {
-      bottomSheetRef.current?.close();  // Close the Bottom Sheet
-    } else {
-      bottomSheetRef.current?.expand(); // Open the Bottom Sheet
-    }
-  };
-
+     //render
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
           <View style={styles.container}>
